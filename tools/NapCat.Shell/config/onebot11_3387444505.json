@@ -1,0 +1,25 @@
+{
+  "network": {
+    "httpServers": [
+      {
+        "enable": true,
+        "name": "bot",
+        "host": "127.0.0.1",
+        "port": 3000,
+        "enableCors": true,
+        "enableWebsocket": true,
+        "messagePostFormat": "array",
+        "token": "#sDX{7E;Xlu5?;Y0",
+        "debug": false
+      }
+    ],
+    "httpSseServers": [],
+    "httpClients": [],
+    "websocketServers": [],
+    "websocketClients": [],
+    "plugins": []
+  },
+  "musicSignUrl": "",
+  "enableLocalFile2Url": false,
+  "parseMultMsg": false
+}
