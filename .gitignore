@@ -131,3 +131,5 @@ dist
 # Koishi specific
 data/
 telemetry.json
+
+.DS_Store
