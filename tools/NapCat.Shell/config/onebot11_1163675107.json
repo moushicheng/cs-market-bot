@@ -4,7 +4,19 @@
     "httpSseServers": [],
     "httpClients": [],
     "websocketServers": [],
-    "websocketClients": [],
+    "websocketClients": [
+      {
+        "enable": true,
+        "name": "koishi",
+        "url": "ws://127.0.0.1:5140/onebot",
+        "reportSelfMessage": false,
+        "messagePostFormat": "array",
+        "token": "",
+        "debug": false,
+        "heartInterval": 30000,
+        "reconnectInterval": 30000
+      }
+    ],
     "plugins": []
   },
   "musicSignUrl": "",

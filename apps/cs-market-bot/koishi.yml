@@ -73,3 +73,6 @@ plugins:
     template:
       - '%%message%%'
       - 你好：%%message%%
+  cs-market:4nw9e5: {}
+  adapter-onebot:c9axwh:
+    selfId: '1163675107'
