@@ -69,3 +69,7 @@ plugins:
     $if: env.NODE_ENV === 'development'
     hmr:keq2iv:
       root: .
+  advanced-echo:zovl9j:
+    template:
+      - '%%message%%'
+      - 你好：%%message%%

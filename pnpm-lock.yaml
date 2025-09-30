@@ -110,6 +110,12 @@ importers:
       koishi:
         specifier: ^4.18.7
         version: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
+      koishi-plugin-adapter-onebot:
+        specifier: 6.8.0
+        version: 6.8.0(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1))
+      koishi-plugin-advanced-echo:
+        specifier: 1.0.0
+        version: 1.0.0(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1))
       koishi-plugin-android:
         specifier: ^0.0.1
         version: 0.0.1(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1))
@@ -2326,6 +2332,16 @@ packages:
     resolution: {integrity: sha512-+CCssgnrWKx9aI3OeZwroa/ckG4JICxvIFnSiOUyl2Uv+UTI+xIw0FfFrWS7cQFpoePpr9o8csss7KzsTzNL8Q==}
     engines: {node: ^4.8.4 || ^6.10.1 || ^7.10.1 || >= 8.1.4}
 
+  koishi-plugin-adapter-onebot@6.8.0:
+    resolution: {integrity: sha512-jFPZcINZSlWyKab3xcN7YGUCjyhVfeswgfdmUllvTA4nHO3udPRs9VNmaR7wLfcFSFZYrrJwZvM/t0Aak991sw==}
+    peerDependencies:
+      koishi: ^4.18.6
+
+  koishi-plugin-advanced-echo@1.0.0:
+    resolution: {integrity: sha512-TIS6WHLeexImpsZ2EO7wpCps66q1d9jiGxZFum5Q41qX/Plo4wwkm8lMfUr3sg94EIga9J5mjmCRKSrV5HOd5Q==}
+    peerDependencies:
+      koishi: ^4.18.0
+
   koishi-plugin-android@0.0.1:
     resolution: {integrity: sha512-Y/sF1IUFjh2qPzkQ8EuA8o6amr0uTTEnx1aMKdtW2mxctVvgPwHhd91SNpzgBpbYTRdn1V2mcFadKXPXT17IKw==}
     peerDependencies:
@@ -2641,6 +2657,9 @@ packages:
 
   puppeteer-finder@1.1.1:
     resolution: {integrity: sha512-mrZsTAkxl+8O2VtpWmEiNvL1IUEqAZQdX4RRdgREaPb45pQr7pj50LJnPKKSDmOxvYKyPje+vS9uI8OJR3u1gQ==}
+
+  qface@1.4.1:
+    resolution: {integrity: sha512-52qX9qdiDFd53xnYAFitkXVldcSddd4ZQiFTV2IluM+2HdDiJph3CKtmPi7CTCA9QF7K2d2WUAH3E2Y4P6fEjQ==}
 
   qs@6.14.0:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
@@ -5306,6 +5325,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  koishi-plugin-adapter-onebot@6.8.0(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)):
+    dependencies:
+      koishi: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
+      qface: 1.4.1
+
+  koishi-plugin-advanced-echo@1.0.0(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)):
+    dependencies:
+      koishi: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
+
   koishi-plugin-android@0.0.1(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)):
     dependencies:
       koishi: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
@@ -5630,6 +5658,8 @@ snapshots:
       - utf-8-validate
 
   puppeteer-finder@1.1.1: {}
+
+  qface@1.4.1: {}
 
   qs@6.14.0:
     dependencies:
