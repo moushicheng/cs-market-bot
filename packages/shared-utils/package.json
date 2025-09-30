@@ -1,0 +1,21 @@
+{
+  "name": "@qq/shared-utils",
+  "version": "1.0.0",
+  "description": "QQ Bot共享工具包",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

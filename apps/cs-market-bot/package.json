@@ -1,28 +1,13 @@
 {
   "name": "cs-market-bot",
   "version": "0.0.0",
-  "packageManager": "yarn@4.1.0",
+  "packageManager": "pnpm@9.0.0",
   "private": true,
   "files": [
     ".env",
     "koishi.yml"
   ],
   "license": "AGPL-3.0",
-  "workspaces": [
-    "external/*",
-    "external/*/external/*",
-    "external/*/external/*/packages/*",
-    "external/*/external/*/plugins/*",
-    "external/*/packages/*",
-    "external/*/plugins/*",
-    "external/satori/adapters/*",
-    "external/koishi/plugins/*",
-    "external/koishi/plugins/database/*",
-    "packages/*",
-    "packages/@*/*",
-    "plugins/*",
-    "plugins/@*/*"
-  ],
   "scripts": {
     "new": "koishi-scripts new",
     "setup": "koishi-scripts setup",

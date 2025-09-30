@@ -1,11 +1,23 @@
 {
-  "name": "qq",
+  "name": "qq-monorepo",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r run dev",
+    "clean": "pnpm -r run clean",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "cs-market-bot:dev": "pnpm --filter cs-market-bot dev",
+    "cs-market-bot:build": "pnpm --filter cs-market-bot build",
+    "cs-market-bot:start": "pnpm --filter cs-market-bot start"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.2"
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "QQ Bot Mono-repo"
 }

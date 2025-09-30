@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@qq/*": ["packages/*/src"],
+      "@qq/apps/*": ["apps/*/src"]
+    }
+  },
+  "references": [
+    {
+      "path": "./apps/cs-market-bot"
+    },
+    {
+      "path": "./packages/shared-utils"
+    }
+  ],
+  "files": [],
+  "include": [],
+  "exclude": ["node_modules", "dist", "build"]
+}

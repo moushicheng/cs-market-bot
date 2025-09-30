@@ -1,0 +1,5 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "apps/cs-market-bot/external/*"
+  - "apps/cs-market-bot/plugins/*"
