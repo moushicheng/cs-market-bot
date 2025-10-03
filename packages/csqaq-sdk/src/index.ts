@@ -1,191 +1,321 @@
+import axios, { AxiosInstance } from 'axios';
+
 // SDK 初始化配置
 export type CSQAQSDKOptions = {
   /** CSQAQ 账户的 API Token */
-  token: string;
+  token?: string;
   /** 可选：自定义接口地址，默认 https://api.csqaq.com */
   baseUrl?: string;
   /** 可选：部分场景需要透传绑定 IP 的请求头名 */
   ipHeaderName?: string;
   /** 可选：与 ipHeaderName 配合使用的静态 IP 值 */
   ipValue?: string;
-  /** 可选：自定义 fetch 实现（Node 环境或单测中注入） */
-  fetchImpl?: typeof fetch;
+  /** 可选：自定义 axios 实例 */
+  axiosInstance?: AxiosInstance;
 };
 
-export type HttpMethod = "GET" | "POST";
-
-// 通用接口返回包裹（仅作为示例，具体字段请以官方文档为准）
+// 通用接口返回包裹
 export interface ApiEnvelope<T> {
   code: number;
-  msg?: string;
+  msg: string;
   data: T;
 }
 
-// 指数相关类型（根据文档可再细化）
-export interface IndexBrief {
+// 首页指数数据类型
+export interface IndexData {
   id: number;
   name: string;
-  symbol?: string;
-  lastPrice?: number;
-  change24h?: number;
-}
-
-export interface IndexDetail extends IndexBrief {
-  description?: string;
-  constituents?: Array<{ id: number; weight?: number }>;
-}
-
-export interface KlinePoint {
-  time: number; // 时间戳（秒或毫秒，按实际文档调整）
+  name_key: string;
+  img: string;
+  market_index: number;
+  chg_num: number;
+  chg_rate: number;
   open: number;
+  close: number;
   high: number;
   low: number;
-  close: number;
-  volume?: number;
+  updated_at: string;
 }
 
-// 物品与价格相关类型
-export interface ItemBrief {
+// 首页相关数据响应类型
+export interface HomePageData {
+  sub_index_data: IndexData[];
+  // 根据实际 API 响应添加其他字段
+}
+
+// 饰品 ID 信息类型
+export interface GoodIdInfo {
   id: number;
   name: string;
-  game?: string;
+  market_hash_name: string;
 }
 
-export interface ItemDetail extends ItemBrief {
-  rarity?: string;
-  iconUrl?: string;
-  description?: string;
+// 获取饰品 ID 请求参数
+export interface GetGoodIdRequest {
+  page_index: number;
+  page_size: number;
+  search: string;
 }
 
-export interface PricePoint {
-  time: number;
+// 获取饰品 ID 响应数据
+export interface GetGoodIdResponse {
+  data: Record<string, GoodIdInfo>;
+  page_index: number;
+  page_size: number;
+  total: number;
+}
+
+// 饰品详情信息类型
+export interface GoodsInfo {
+  id: number;
+  turnover_number: number;
+  turnover_avg_price: number;
+  period_at: string;
+  buff_id: number;
+  yyyp_id: number;
+  name: string;
+  market_hash_name: string;
+  buff_sell_price: number;
+  buff_buy_price: number;
+  buff_sell_num: number;
+  buff_buy_num: number;
+  yyyp_sell_price: number;
+  yyyp_lease_num: number;
+  yyyp_transfer_price: number;
+  yyyp_lease_price: number;
+  yyyp_long_lease_price: number;
+  yyyp_lease_annual: number;
+  yyyp_long_lease_annual: number;
+  yyyp_sell_num: number;
+  yyyp_steam_price: number;
+  yyyp_buy_num: number;
+  yyyp_buy_price: number;
+  sell_price_rate_1: number;
+  sell_price_rate_7: number;
+  sell_price_rate_15: number;
+  sell_price_rate_30: number;
+  sell_price_rate_90: number;
+  sell_price_rate_180: number;
+  sell_price_rate_365: number;
+  sell_price_1: number;
+  sell_price_7: number;
+  sell_price_15: number;
+  sell_price_30: number;
+  sell_price_90: number;
+  sell_price_180: number;
+  sell_price_365: number;
+  yyyp_sell_price_1: number;
+  yyyp_sell_price_7: number;
+  yyyp_sell_price_15: number;
+  yyyp_sell_price_30: number;
+  yyyp_sell_price_90: number;
+  yyyp_sell_price_180: number;
+  yyyp_sell_price_365: number;
+  yyyp_sell_price_rate_1: number;
+  yyyp_sell_price_rate_7: number;
+  yyyp_sell_price_rate_15: number;
+  yyyp_sell_price_rate_30: number;
+  yyyp_sell_price_rate_90: number;
+  yyyp_sell_price_rate_180: number;
+  yyyp_sell_price_rate_365: number;
+  r8_sell_price: number;
+  r8_sell_num: number;
+  steam_sell_price: number;
+  steam_sell_num: number;
+  steam_buy_price: number;
+  steam_buy_num: number;
+  steam_buff_buy_conversion: number;
+  steam_buff_sell_conversion: number;
+  buff_steam_buy_conversion: number;
+  buff_steam_sell_conversion: number;
+  type_localized_name: string;
+  statistic: number;
+  img: string;
+  updated_at: string;
+  rank_num: number;
+  rank_num_change: number;
+  def_index: number;
+  paint_index: number;
+  c5_sell_price: number;
+  c5_sell_num: number;
+  c5_lease_price: number;
+  c5_long_lease_price: number;
+  min_float: number;
+  max_float: number;
+  rarity_localized_name: string;
+  quality_localized_name: string;
+  exterior_localized_name: string;
+  group_hash_name: string;
+}
+
+// 按钮列表项类型
+export interface ButtonListItem {
+  id: number;
+  name: string;
+  current: boolean;
+  switch: boolean;
+}
+
+// 多普勒变种类型
+export interface DopplerVariant {
+  key: number;
+  label: string;
+  value: string;
+  def_index: number;
+  paint_index: number;
+  short_name_en: string;
+  buff_sell_price: number;
+  buff_buy_price: number;
+}
+
+// 统计信息类型
+export interface StatisticItem {
+  name: string;
+  statistic_at: string;
+  statistic: number;
+}
+
+// 武器箱信息类型
+export interface ContainerInfo {
+  id: number;
+  url: string;
+  name: string;
   price: number;
+  comment: string;
+  created_at: string;
+  roi: number;
 }
 
-export interface RankingEntry {
-  id: number;
-  name: string;
-  value: number; // 排名指标值，如成交额/涨幅等
+// 获取单件饰品详情响应数据
+export interface GoodDetailResponse {
+  goods_info: GoodsInfo;
+  button_list: ButtonListItem[];
+  dpl: DopplerVariant[];
+  is_collection: any[];
+  statistic_list: StatisticItem[];
+  container: ContainerInfo[];
 }
 
-// Http 方法类型（避免重复定义）
+// 批量获取饰品出售价格请求参数
+export interface BatchGoodSellPriceRequest {
+  good_ids: number[];
+}
+
+// 饰品出售价格数据
+export interface GoodSellPriceData {
+  good_id: number;
+  sell_price: number[];
+}
+
+// 批量获取饰品出售价格响应数据
+export interface BatchGoodSellPriceResponse {
+  data: Record<string, GoodSellPriceData>;
+}
 
 export class CSQAQClient {
-  private readonly baseUrl: string;
-  private readonly token: string;
-  private readonly fetchImpl: typeof fetch;
-  private readonly ipHeaderName?: string;
-  private readonly ipValue?: string;
+  private readonly axios: AxiosInstance;
+  private readonly token?: string;
 
-  constructor(options: CSQAQSDKOptions) {
-    this.baseUrl = (options.baseUrl ?? "https://api.csqaq.com").replace(/\/$/, "");
+  constructor(options: CSQAQSDKOptions = {}) {
     this.token = options.token;
-    this.fetchImpl = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
-    this.ipHeaderName = options.ipHeaderName;
-    this.ipValue = options.ipValue;
-  }
 
-  private buildHeaders(extra?: Record<string, string>): Headers {
-    const headers = new Headers({
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${this.token}`,
-      ...extra,
+    // 创建 axios 实例
+    this.axios = options.axiosInstance || axios.create({
+      baseURL: (options.baseUrl || 'https://api.csqaq.com').replace(/\/$/, ''),
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
-    if (this.ipHeaderName && this.ipValue) {
-      headers.set(this.ipHeaderName, this.ipValue);
-    }
-    return headers;
-  }
 
-  // 内部请求封装
-  private async request<T>(method: HttpMethod, path: string, body?: unknown, init?: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
-    const response = await this.fetchImpl(url, {
-      method,
-      headers: this.buildHeaders(init?.headers as Record<string, string> | undefined),
-      body: body == null ? undefined : JSON.stringify(body),
-      ...init,
+    // 添加请求拦截器
+    this.axios.interceptors.request.use((config) => {
+      // 添加 API Token
+      if (this.token) {
+        config.headers['ApiToken'] = this.token;
+      }
+
+      return config;
     });
-    if (!response.ok) {
-      const text = await safeReadText(response);
-      throw new Error(`CSQAQ API error ${response.status}: ${text}`);
-    }
-    const contentType = response.headers.get("content-type") ?? "";
-    if (contentType.includes("application/json")) {
-      return (await response.json()) as T;
-    }
-    // Fallback to text for some endpoints
-    return (await response.text()) as unknown as T;
+
+    // 添加响应拦截器
+    this.axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response) {
+          const { status, data } = error.response;
+          const errorMessage = data?.msg || data?.message || `HTTP ${status}`;
+          throw new Error(`CSQAQ API error: ${errorMessage}`);
+        }
+        throw error;
+      }
+    );
   }
 
-  get<T>(path: string, init?: RequestInit): Promise<T> {
-    return this.request<T>("GET", path, undefined, init);
+  /**
+   * 获取首页相关数据
+   * @param type 数据类型，默认为 'init'
+   * @returns 首页数据
+   */
+  async getHomePageData(type: string = 'init'): Promise<ApiEnvelope<HomePageData>> {
+    const response = await this.axios.get<ApiEnvelope<HomePageData>>('/api/v1/current_data', {
+      params: { type }
+    });
+    return response.data;
   }
 
-  post<TReq extends object, TRes>(path: string, payload: TReq, init?: RequestInit): Promise<TRes> {
-    return this.request<TRes>("POST", path, payload, init);
+  /**
+   * 搜索饰品 ID 信息（简化版本）
+   * @param search 搜索关键词
+   * @param pageIndex 页码，默认为 1
+   * @param pageSize 每页大小，默认为 20
+   * @returns 饰品 ID 信息列表
+   */
+  async searchGoodId(search: string, pageIndex: number = 1, pageSize: number = 20): Promise<GoodIdInfo[]> {
+    const response = await this.getGoodId({
+      page_index: pageIndex,
+      page_size: pageSize,
+      search
+    });
+
+    // 将 Record 格式转换为数组格式
+    return Object.values(response.data.data);
   }
 
-  // 高层封装：可继续扩展更多 Open API
-
-  // Index endpoints
-  /** 首页指数概览 */
-  getHomeIndexData() {
-    return this.get<ApiEnvelope<IndexBrief[]>>("/open/index/home");
+  /**
+   * 获取单件饰品详情
+   * @param id 饰品 ID
+   * @returns 饰品详情数据
+   */
+  async getGoodDetail(id: number): Promise<ApiEnvelope<GoodDetailResponse>> {
+    const response = await this.axios.get<ApiEnvelope<GoodDetailResponse>>('/api/v1/info/good', {
+      params: { id }
+    });
+    return response.data;
   }
 
-  /** 指数详情 */
-  getIndexDetail(params: { id: number | string }) {
-    const search = new URLSearchParams({ id: String(params.id) });
-    return this.get<ApiEnvelope<IndexDetail>>(`/open/index/detail?${search.toString()}`);
+  /**
+   * 批量获取饰品出售价格数据
+   * @param goodIds 饰品 ID 数组
+   * @returns 批量饰品出售价格数据
+   */
+  async getBatchGoodSellPrice(goodIds: number[]): Promise<ApiEnvelope<BatchGoodSellPriceResponse>> {
+    const response = await this.axios.post<ApiEnvelope<BatchGoodSellPriceResponse>>('/api/v1/info/good_sell_price', {
+      good_ids: goodIds
+    });
+    return response.data;
   }
 
-  /** 指数 K 线 */
-  getIndexKline(params: { id: number | string; period?: string }) {
-    const search = new URLSearchParams({ id: String(params.id) });
-    if (params.period) search.set("period", params.period);
-    return this.get<ApiEnvelope<KlinePoint[]>>(`/open/index/kline?${search.toString()}`);
+  /**
+ * 获取饰品的 ID 信息
+ * @param request 请求参数
+ * @returns 饰品 ID 信息列表
+ */
+  private async getGoodId(request: GetGoodIdRequest): Promise<ApiEnvelope<GetGoodIdResponse>> {
+    const response = await this.axios.post<ApiEnvelope<GetGoodIdResponse>>('/api/v1/info/get_good_id', request);
+    return response.data;
   }
 
-  // 物品相关（路径以文档为准，如与实际不符请根据文档调整）
-  /** 搜索物品 */
-  searchItemIds(query: string) {
-    const search = new URLSearchParams({ q: query });
-    return this.get<ApiEnvelope<ItemBrief[]>>(`/open/item/search?${search.toString()}`);
-  }
-
-  /** 物品详情（POST） */
-  getItemById(body: { id: number | string }) {
-    return this.post<typeof body, ApiEnvelope<ItemDetail>>("/open/item/get", body);
-  }
-
-  /** 物品价格批量（POST） */
-  getItemsPriceBatch(body: { ids: Array<number | string> }) {
-    return this.post<typeof body, ApiEnvelope<Record<string, PricePoint[]>>>("/open/item/price/batch", body);
-  }
-
-  /** 物品走势图（POST） */
-  getItemChart(body: { id: number | string; period?: string }) {
-    return this.post<typeof body, ApiEnvelope<PricePoint[]>>("/open/item/chart", body);
-  }
-
-  // 排行相关
-  /** 排行列表（POST） */
-  getRankings(body: { type: string; page?: number; pageSize?: number }) {
-    return this.post<typeof body, ApiEnvelope<RankingEntry[]>>("/open/rank/list", body);
-  }
-}
-
-async function safeReadText(res: Response): Promise<string> {
-  try {
-    return await res.text();
-  } catch {
-    return "";
-  }
-}
-
-export function createCSQAQClient(options: CSQAQSDKOptions) {
-  return new CSQAQClient(options);
 }
 
 export default CSQAQClient;
