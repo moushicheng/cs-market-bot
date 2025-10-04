@@ -36,3 +36,17 @@ export async function getRedisClient(): Promise<
 
   return redisClient;
 }
+
+export async function setRedisJson(key: string, value: any) {
+  const  redisClient = await getRedisClient();
+  await redisClient.set(key, JSON.stringify(value));
+}
+
+export async function getRedisJson(key: string) {
+  const redisClient = await getRedisClient();
+  const value = await redisClient.get(key);
+  if(!value || typeof value !== 'string'){
+    return null;
+  }
+  return JSON.parse(value);
+}

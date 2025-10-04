@@ -13,4 +13,11 @@ export function apply(ctx: Context) {
       session.send('宝塔镇河妖')
     }
   })
+
+  ctx.command('search <keyword> 搜索cs市场饰品信息')
+  .alias('搜索')
+  .action(async (session) => {
+    console.log(JSON.stringify(session))
+    return '114514'
+  })
 }
