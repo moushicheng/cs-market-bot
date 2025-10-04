@@ -1,35 +1,20 @@
 import { createId } from "../../infra/id-generator/id-generator"
-import { getRedisClient, getRedisJson, setRedisJson } from "../../infra/redis/redis"
-import { Matcher } from "./matcher"
-import { MatchPattern, MatchContext, MatchResult } from "./matcher.types"
+import { MatchContext, MatchPattern, MatchResult } from "../../infra/types/matcher"
+import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey } from "../../infra/redis/redis"
+import { Matcher } from "../../infra/matcher/matcher"
+import { 
+  SessionType, 
+  BaseSessionHook, 
+  ExtendedBaseSessionHook,
+  KoishiSession, 
+  User, 
+  Channel, 
+  Message, 
+  Command 
+} from "../../infra/types/session"
 
-enum SessionType {
-  WaitingChoiceSkinId = 'waiting_choice_skin_id',
-}
-// 基础会话信息
-interface BaseSessionHook {
-  /** 用户ID */
-  userId: string
-  /** 渠道ID */
-  channelId: string
-  /** 会话类型 */
-  sessionType: SessionType
-  /** 会话数据 */
-  sessionContext: any
-  /** 创建时间 */
-  timestamp: number
-  /** 事件类型 */
-  eventType: string
-}
+// ExtendedBaseSessionHook 现在从类型文件中导入
 
-type SessionHookCreateParams = {
-  baseSession: BaseSessionHook
-  sessionType: SessionType
-  sessionData: any
-  sessionContext: any
-  eventType: string
-  matchPattern: MatchPattern
-}
 
 // 会话存储结构
 interface StoredSession {
@@ -70,16 +55,15 @@ export class SessionHook {
     return this;
   }
 
-  async create(params: SessionHookCreateParams) {
-    this.baseSession = params.baseSession  
+  async create(params: ExtendedBaseSessionHook) {
     this.sessionType = params.sessionType
-    this.sessionData = params.sessionData
+    this.sessionData = params.sessionContext
     this.sessionContext = params.sessionContext
     this.eventType = params.eventType
     this.matchPattern = params.matchPattern
     this.id = createId()
 
-    await setRedisJson(`session:${this.id}`, this.baseSession)
+    await setRedisJson(`session:${this.id}`, params)
     
     return this;
   }
@@ -111,7 +95,7 @@ export class SessionHookManager {
     return SessionHookManager.instance
   }
 
-  async createSession(params: SessionHookCreateParams) {
+  async createSession(params: ExtendedBaseSessionHook) {
     const session = new SessionHook()
     await session.create(params)
 
@@ -127,7 +111,7 @@ export class SessionHookManager {
       matchPattern: session.matchPattern,
       createdAt: Date.now()
     }
-    await setRedisJson(`sessions`, sessions)
+    await setRedisJson(`sessions`, sessions,0)
     
     return session
   }
@@ -159,6 +143,7 @@ export class SessionHookManager {
       } catch (error) {
         console.warn(`Failed to check session ${sessionId}:`, error)
       }
+      console.log(matchingSessions)
     }
 
     // 按优先级排序
@@ -176,11 +161,10 @@ export class SessionHookManager {
       delete sessions[sessionId]
       await setRedisJson(`sessions`, sessions)
     }
-    
     // 从Redis删除会话数据
-    const redisClient = await getRedisClient()
-    await redisClient.del(`session:${sessionId}`)
+    await deleteRedisKey(`session:${sessionId}`)
   }
+
 
   /**
    * 获取所有活跃会话

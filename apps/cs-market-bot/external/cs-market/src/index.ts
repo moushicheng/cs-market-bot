@@ -1,6 +1,7 @@
 import { Context } from 'koishi'
 import { CSQAQClient } from '@qq/csqaq-sdk'
 import { getRedisClient } from './infra/redis/redis'
+import { SessionHookManager } from './domain/session/session.domain'
 export const name = 'example'
 const token = process.env.CSQAQ_TOKEN
 const client = new CSQAQClient({
@@ -16,8 +17,12 @@ export function apply(ctx: Context) {
 
   ctx.command('search <keyword> 搜索cs市场饰品信息')
   .alias('搜索')
-  .action(async (session) => {
-    console.log(JSON.stringify(session))
+  .action(async (session:) => {
+   const sessionManager = SessionHookManager.getInstance()
+   sessionManager.createSession({
+    userId: session.userId,
+    
+   })
     return '114514'
   })
 }

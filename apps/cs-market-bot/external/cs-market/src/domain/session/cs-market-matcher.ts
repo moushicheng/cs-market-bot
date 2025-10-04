@@ -1,4 +1,4 @@
-import { CustomMatcher, CustomMatchCondition, MatchContext } from './matcher.types'
+import { CustomMatcher, CustomMatchCondition, MatchContext } from '../../infra/types/matcher'
 
 /**
  * CS市场业务特定的匹配器
