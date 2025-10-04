@@ -7,8 +7,9 @@ import {
   CustomMatchCondition,
   TimeRangeMatchCondition,
   CustomMatcher,
-  FieldAccessor
-} from './matcher.types'
+  FieldAccessor,
+  Operator
+} from '../types/matcher'
 
 /**
  * 默认字段访问器
@@ -96,8 +97,7 @@ export class Matcher {
     const results: MatchResult[] = []
 
     for (const pattern of this.patterns) {
-      if (!pattern.enabled) continue
-
+      if (pattern.enabled===false) continue
       const result = this.matchPattern(pattern, context)
       if (result.matched) {
         results.push(result)
@@ -114,10 +114,8 @@ export class Matcher {
     const matchedConditions: MatchCondition[] = []
     const failedConditions: MatchCondition[] = []
     const variables: Record<string, any> = {}
-
     for (const condition of pattern.conditions) {
       const conditionResult = this.matchCondition(condition, context)
-      
       if (conditionResult.matched) {
         matchedConditions.push(condition)
         if (conditionResult.variables) {
@@ -192,17 +190,17 @@ export class Matcher {
     const expectedStr = String(expectedValue)
 
     switch (operator) {
-      case 'equals':
+      case Operator.EQUALS:
         return { matched: fieldValue === expectedValue }
-      case 'notEquals':
+      case Operator.NOT_EQUALS:
         return { matched: fieldValue !== expectedValue }
-      case 'contains':
+      case Operator.CONTAINS:
         return { matched: fieldStr.includes(expectedStr) }
-      case 'startsWith':
+      case Operator.STARTS_WITH:
         return { matched: fieldStr.startsWith(expectedStr) }
-      case 'endsWith':
+      case Operator.ENDS_WITH:
         return { matched: fieldStr.endsWith(expectedStr) }
-      case 'regex':
+      case Operator.REGEX:
         try {
           const regex = new RegExp(expectedStr, 'i')
           const match = fieldStr.match(regex)

@@ -2,28 +2,53 @@
  * 通用匹配器类型定义
  */
 
+// 匹配类型枚举
+export enum MatchType {
+  FIELD = 'field',
+  CUSTOM = 'custom',
+  TIME_RANGE = 'timeRange'
+}
+
+// 操作符枚举
+export enum Operator {
+  EQUALS = 'equals',
+  NOT_EQUALS = 'notEquals',
+  CONTAINS = 'contains',
+  STARTS_WITH = 'startsWith',
+  ENDS_WITH = 'endsWith',
+  REGEX = 'regex',
+  IN = 'in',
+  NOT_IN = 'notIn',
+  GT = 'gt',
+  GTE = 'gte',
+  LT = 'lt',
+  LTE = 'lte',
+  EXISTS = 'exists',
+  NOT_EXISTS = 'notExists'
+}
+
 // 基础匹配条件
 export interface BaseMatchCondition {
-  type: string
+  type: MatchType
   value: any
-  operator?: string
+  operator?: Operator
 }
 
 /**
  * 通用字段匹配条件
  */
 export interface FieldMatchCondition extends BaseMatchCondition {
-  type: 'field'
+  type: MatchType.FIELD
   field: string // 字段路径，支持嵌套如 'user.id', 'session.data.status'
   value: any
-  operator?: 'equals' | 'notEquals' | 'contains' | 'startsWith' | 'endsWith' | 'regex' | 'in' | 'notIn' | 'gt' | 'gte' | 'lt' | 'lte' | 'exists' | 'notExists'
+  operator?: Operator
 }
 
 /**
  * 自定义匹配条件
  */
 export interface CustomMatchCondition extends BaseMatchCondition {
-  type: 'custom'
+  type: MatchType.CUSTOM
   name: string // 自定义匹配器名称
   value: any
   config?: Record<string, any> // 额外配置
@@ -33,7 +58,7 @@ export interface CustomMatchCondition extends BaseMatchCondition {
  * 时间范围匹配条件（特殊处理）
  */
 export interface TimeRangeMatchCondition extends BaseMatchCondition {
-  type: 'timeRange'
+  type: MatchType.TIME_RANGE
   value: {
     start?: string // HH:mm 格式
     end?: string   // HH:mm 格式
@@ -65,8 +90,6 @@ export interface MatchPattern {
 
 // 匹配上下文 - 现在完全动态
 export interface MatchContext {
-  /** 当前时间戳 */
-  timestamp?: number
   /** 动态数据，可以包含任何字段 */
   [key: string]: any
 }

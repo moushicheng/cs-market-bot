@@ -1,5 +1,5 @@
 import { Matcher } from './matcher'
-import { MatchPattern, MatchContext } from './matcher.types'
+import { MatchPattern, MatchContext } from '../types/matcher'
 import { CSMarketMatcher, MessageMatcher, UserPermissionMatcher } from './cs-market-matcher'
 
 /**

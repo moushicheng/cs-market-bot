@@ -42,17 +42,21 @@ export class SessionHook {
 
   async init(id: string) {
     const redisClient = await getRedisClient();
-    const session = await redisClient.get(`session:${id}`) as BaseSessionHook;
-    if (!session) {
+    const session = await redisClient.get(`session:${id}`) 
+    if (typeof session !== 'string') {
       throw new Error("Session not found.");
     }
-    this.baseSession = session
-    this.sessionType = session.sessionType
-    this.sessionData = session.sessionContext
-    this.sessionContext = session.sessionContext
-    this.eventType = session.eventType
-    this.id = id
-    return this;
+    try{
+      this.baseSession = JSON.parse(session) as BaseSessionHook;
+      this.sessionType = this.baseSession.sessionType
+      this.sessionData = this.baseSession.sessionContext
+      this.sessionContext = this.baseSession.sessionContext
+      this.eventType = this.baseSession.eventType
+      this.id = id
+      return this
+    }catch(error){
+      throw new Error("Session not found.");
+    }
   }
 
   async create(params: ExtendedBaseSessionHook) {
@@ -68,14 +72,8 @@ export class SessionHook {
     return this;
   }
 
-  /**
-   * 检查是否匹配当前上下文
-   */
-  async checkMatch(context: MatchContext): Promise<MatchResult> {
-    const matcher = new Matcher()
-    matcher.addPattern(this.matchPattern)
-    const results = matcher.match(context)
-    return results[0] || { matched: false }
+  async remove() {
+    await deleteRedisKey(`session:${this.id}`)
   }
 }   
 
@@ -120,13 +118,12 @@ export class SessionHookManager {
    * 根据上下文查找匹配的会话
    */
   async findMatchingSessions(context: MatchContext): Promise<SessionHook[]> {
-    const sessions = await getRedisJson(`sessions`) || {}
+    const sessions = await getRedisJson(`sessions`) as Record<string, StoredSession> || {}
     const matchingSessions: SessionHook[] = []
 
     for (const [sessionId, sessionData] of Object.entries(sessions)) {
       try {
         const storedSession = sessionData as StoredSession
-        
         // 先检查匹配模式是否匹配，避免不必要的初始化
         if (storedSession.matchPattern) {
           const matcher = new Matcher()
@@ -143,7 +140,6 @@ export class SessionHookManager {
       } catch (error) {
         console.warn(`Failed to check session ${sessionId}:`, error)
       }
-      console.log(matchingSessions)
     }
 
     // 按优先级排序
