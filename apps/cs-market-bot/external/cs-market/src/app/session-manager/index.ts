@@ -1,5 +1,6 @@
 import { Context, Session } from 'koishi'
 import { SessionHookManager } from '../../domain/session/session.domain'
+import { EventBus } from '../../infra/event/event-bus'
 
 export class SessionManagerApp {
   private sessionManager: SessionHookManager
@@ -11,8 +12,13 @@ export class SessionManagerApp {
   registerMessageHandler(ctx: Context) {
     ctx.on('message', async (session: Session) => {
       const matchingSessions = await this.sessionManager.findMatchingSessions(session)
-      matchingSessions.forEach(async (session) => {
-        await session.remove()
+      //触发事件
+      const eventBus=EventBus.getInstance()
+      matchingSessions.forEach(async (sessionHook) => {
+        eventBus.emit(sessionHook.eventType, {
+          sessionHook,
+          session
+        })
       })
     })
   }

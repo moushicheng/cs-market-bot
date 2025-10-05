@@ -72,12 +72,17 @@ export type MatchCondition =
   | CustomMatchCondition
   | TimeRangeMatchCondition
 
+export enum Logic {
+  AND = 'AND',
+  OR = 'OR'
+}
+
 // 匹配模式配置
 export interface MatchPattern {
   /** 匹配条件列表 */
   conditions: MatchCondition[]
   /** 逻辑操作符：AND 或 OR */
-  logic: 'AND' | 'OR'
+  logic: Logic
   /** 匹配优先级，数字越小优先级越高 */
   priority?: number
   /** 是否启用 */

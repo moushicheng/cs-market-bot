@@ -1,16 +1,11 @@
 import { createId } from "../../infra/id-generator/id-generator"
-import { MatchContext, MatchPattern, MatchResult } from "../../infra/types/matcher"
+import { MatchContext, MatchPattern } from "../../infra/types/matcher"
 import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey } from "../../infra/redis/redis"
 import { Matcher } from "../../infra/matcher/matcher"
 import { 
   SessionType, 
   BaseSessionHook, 
   ExtendedBaseSessionHook,
-  KoishiSession, 
-  User, 
-  Channel, 
-  Message, 
-  Command 
 } from "../../infra/types/session"
 
 // ExtendedBaseSessionHook 现在从类型文件中导入
@@ -37,8 +32,6 @@ export class SessionHook {
   matchPattern: MatchPattern
   /** 会话数据 */
   sessionData: any
-  /** 会话上下文 */
-  sessionContext: any
 
   async init(id: string) {
     const redisClient = await getRedisClient();
@@ -49,8 +42,7 @@ export class SessionHook {
     try{
       this.baseSession = JSON.parse(session) as BaseSessionHook;
       this.sessionType = this.baseSession.sessionType
-      this.sessionData = this.baseSession.sessionContext
-      this.sessionContext = this.baseSession.sessionContext
+      this.sessionData = this.baseSession.sessionData
       this.eventType = this.baseSession.eventType
       this.id = id
       return this
@@ -61,8 +53,7 @@ export class SessionHook {
 
   async create(params: ExtendedBaseSessionHook) {
     this.sessionType = params.sessionType
-    this.sessionData = params.sessionContext
-    this.sessionContext = params.sessionContext
+    this.sessionData = params.sessionData
     this.eventType = params.eventType
     this.matchPattern = params.matchPattern
     this.id = createId()
@@ -109,7 +100,7 @@ export class SessionHookManager {
       matchPattern: session.matchPattern,
       createdAt: Date.now()
     }
-    await setRedisJson(`sessions`, sessions,0)
+    await setRedisJson(`sessions`, sessions, 0)
     
     return session
   }
@@ -129,7 +120,6 @@ export class SessionHookManager {
           const matcher = new Matcher()
           matcher.addPattern(storedSession.matchPattern)
           const results = matcher.match(context)
-          
           if (results.length > 0 && results[0].matched) {
             // 只有匹配成功才初始化会话
             const session = new SessionHook()

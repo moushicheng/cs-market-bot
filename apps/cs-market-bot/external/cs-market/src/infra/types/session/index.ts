@@ -141,8 +141,6 @@ export interface BaseSessionHook {
   sessionType: SessionType
   /** 会话数据 */
   sessionData: any
-  /** 会话上下文 */
-  sessionContext: any
   /** 事件类型 */
   eventType: string
   /** 匹配模式 */
@@ -164,6 +162,4 @@ export interface ExtendedBaseSessionHook extends BaseSessionHook {
   userId: string
   /** 渠道ID */
   channelId: string
-  /** 时间戳 */
-  timestamp: number
 }

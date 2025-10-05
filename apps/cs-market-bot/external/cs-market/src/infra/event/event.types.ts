@@ -1,9 +1,9 @@
 /**
  * 基础事件接口
  */
-export interface BaseEvent {
+export interface BaseEvent<T = any> {
   type: string
-  data?: any
+  data?: T
   timestamp?: number
   source?: string
 }

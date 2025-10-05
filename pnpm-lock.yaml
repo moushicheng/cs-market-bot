@@ -189,13 +189,25 @@ importers:
       koishi:
         specifier: ^4.18.7
         version: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
+      nanoid:
+        specifier: ^5.0.4
+        version: 5.1.6
       redis:
         specifier: 5.8.3
         version: 5.8.3
+      reflect-metadata:
+        specifier: ^0.1.13
+        version: 0.1.14
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
     devDependencies:
       '@qq/csqaq-sdk':
         specifier: 'workspace: *'
         version: link:../../../../packages/csqaq-sdk
+      '@types/uuid':
+        specifier: ^9.0.7
+        version: 9.0.8
 
   packages/csqaq-sdk:
     dependencies:
@@ -1461,6 +1473,9 @@ packages:
   '@types/serve-static@1.15.8':
     resolution: {integrity: sha512-roei0UY3LhpOJvjbIP6ZZFngyLKl5dskOtDhxY5THRSpO+ZI+nzJ+m5yUMzGrp89YRa7lvknKkMYjqQFGwA7Sg==}
 
+  '@types/uuid@9.0.8':
+    resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
+
   '@types/web-bluetooth@0.0.16':
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
 
@@ -2582,6 +2597,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.1.6:
+    resolution: {integrity: sha512-c7+7RQ+dMB5dPwwCp4ee1/iV/q2P6aK1mTZcfr1BTuVlyW9hJYiMPybJCcnBlQtuSmTIWNeazm/zqNoZSSElBg==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   negotiator@0.6.3:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
@@ -2778,6 +2798,9 @@ packages:
   redis@5.8.3:
     resolution: {integrity: sha512-MfSrfV6+tEfTw8c4W0yFp6XWX8Il4laGU7Bx4kvW4uiYM1AuZ3KGqEGt1LdQHeD1nEyLpIWetZ/SpY3kkbgrYw==}
     engines: {node: '>= 18'}
+
+  reflect-metadata@0.1.14:
+    resolution: {integrity: sha512-ZhYeb6nRaXCfhnndflDK8qI6ZQ/YcWZCISRAWICW9XYqMUwjZM9Z0DveWX/ABN01oxSHwVxKQmxeYZSsm0jh5A==}
 
   reggol@1.7.1:
     resolution: {integrity: sha512-0Vr1vRYDFnsA14BipkHRn3+4FxlZxQJ4VQG2pFE2obSrR68hTHVbbQzS3/ZAHNb6l/+ThaJrc5BPgrYDM3yNyg==}
@@ -3047,6 +3070,10 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+
+  uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
   vary@1.1.2:
@@ -4332,6 +4359,8 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 22.18.7
       '@types/send': 0.17.5
+
+  '@types/uuid@9.0.8': {}
 
   '@types/web-bluetooth@0.0.16': {}
 
@@ -5626,6 +5655,8 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  nanoid@5.1.6: {}
+
   negotiator@0.6.3: {}
 
   netmask@2.0.2: {}
@@ -5846,6 +5877,8 @@ snapshots:
       '@redis/json': 5.8.3(@redis/client@5.8.3)
       '@redis/search': 5.8.3(@redis/client@5.8.3)
       '@redis/time-series': 5.8.3(@redis/client@5.8.3)
+
+  reflect-metadata@0.1.14: {}
 
   reggol@1.7.1:
     dependencies:
@@ -6165,6 +6198,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@8.3.2: {}
+
+  uuid@9.0.1: {}
 
   vary@1.1.2: {}
 

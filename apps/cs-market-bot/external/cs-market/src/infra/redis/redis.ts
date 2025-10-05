@@ -37,7 +37,7 @@ export async function getRedisClient(): Promise<
   return redisClient;
 }
 
-export async function setRedisJson(key: string, value: any, seconds= 60) {
+export async function setRedisJson(key: string, value: any, seconds= 120) {
   const  redisClient = await getRedisClient();
   if(seconds > 0) {
     await redisClient.setEx(key, seconds, JSON.stringify(value));

@@ -3,13 +3,9 @@ import axios, { AxiosInstance } from 'axios';
 // SDK 初始化配置
 export type CSQAQSDKOptions = {
   /** CSQAQ 账户的 API Token */
-  token?: string;
+  token: string;
   /** 可选：自定义接口地址，默认 https://api.csqaq.com */
   baseUrl?: string;
-  /** 可选：部分场景需要透传绑定 IP 的请求头名 */
-  ipHeaderName?: string;
-  /** 可选：与 ipHeaderName 配合使用的静态 IP 值 */
-  ipValue?: string;
   /** 可选：自定义 axios 实例 */
   axiosInstance?: AxiosInstance;
 };
@@ -216,7 +212,7 @@ export class CSQAQClient {
   private readonly axios: AxiosInstance;
   private readonly token?: string;
 
-  constructor(options: CSQAQSDKOptions = {}) {
+  constructor(options: CSQAQSDKOptions) {
     this.token = options.token;
 
     // 创建 axios 实例
@@ -271,7 +267,7 @@ export class CSQAQClient {
    * @param pageSize 每页大小，默认为 20
    * @returns 饰品 ID 信息列表
    */
-  async searchGoodId(search: string, pageIndex: number = 1, pageSize: number = 20): Promise<GoodIdInfo[]> {
+  async searchGoodId(search: string, pageIndex: number = 1, pageSize: number = 10): Promise<GoodIdInfo[]> {
     const response = await this.getGoodId({
       page_index: pageIndex,
       page_size: pageSize,
