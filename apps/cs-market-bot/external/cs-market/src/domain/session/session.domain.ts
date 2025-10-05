@@ -1,6 +1,6 @@
 import { createId } from "../../infra/id-generator/id-generator"
 import { MatchContext, MatchPattern } from "../../infra/types/matcher"
-import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey } from "../../infra/redis/redis"
+import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey, addToRedisSet, removeFromRedisSet, getRedisSetMembers } from "../../infra/redis/redis"
 import { Matcher } from "../../infra/matcher/matcher"
 import { 
   SessionType, 
@@ -22,8 +22,6 @@ interface StoredSession {
 
 export class SessionHook {
   id: string
-  /** 基础会话信息 */
-  baseSession: BaseSessionHook
   /** 会话类型 */
   sessionType: SessionType
   /** 事件类型 */
@@ -40,10 +38,11 @@ export class SessionHook {
       throw new Error("Session not found.");
     }
     try{
-      this.baseSession = JSON.parse(session) as BaseSessionHook;
-      this.sessionType = this.baseSession.sessionType
-      this.sessionData = this.baseSession.sessionData
-      this.eventType = this.baseSession.eventType
+      const baseSession = JSON.parse(session) as BaseSessionHook;
+      this.sessionType = baseSession.sessionType
+      this.sessionData = baseSession.sessionData
+      this.eventType = baseSession.eventType
+      this.matchPattern = baseSession.matchPattern
       this.id = id
       return this
     }catch(error){
@@ -91,16 +90,8 @@ export class SessionHookManager {
     // 将匹配模式添加到全局匹配器
     this.matcher.addPattern(params.matchPattern)
 
-    // 保存会话到Redis
-    const sessions = await getRedisJson(`sessions`) || {}
-    sessions[session.id] = {
-      id: session.id,
-      sessionType: session.sessionType,
-      eventType: session.eventType,
-      matchPattern: session.matchPattern,
-      createdAt: Date.now()
-    }
-    await setRedisJson(`sessions`, sessions, 0)
+    // 将会话ID添加到活跃会话集合中，设置2分钟过期
+    await addToRedisSet(`sessions:active`, session.id, 120) // 2分钟过期
     
     return session
   }
@@ -109,16 +100,15 @@ export class SessionHookManager {
    * 根据上下文查找匹配的会话
    */
   async findMatchingSessions(context: MatchContext): Promise<SessionHook[]> {
-    const sessions = await getRedisJson(`sessions`) as Record<string, StoredSession> || {}
+    const activeSessionIds = await getRedisSetMembers(`sessions:active`)
     const matchingSessions: SessionHook[] = []
 
-    for (const [sessionId, sessionData] of Object.entries(sessions)) {
+    for (const sessionId of activeSessionIds) {
       try {
-        const storedSession = sessionData as StoredSession
-        // 先检查匹配模式是否匹配，避免不必要的初始化
-        if (storedSession.matchPattern) {
+        const sessionData = await getRedisJson(`session:${sessionId}`) as ExtendedBaseSessionHook
+        if (sessionData && sessionData.matchPattern) {
           const matcher = new Matcher()
-          matcher.addPattern(storedSession.matchPattern)
+          matcher.addPattern(sessionData.matchPattern)
           const results = matcher.match(context)
           if (results.length > 0 && results[0].matched) {
             // 只有匹配成功才初始化会话
@@ -131,7 +121,6 @@ export class SessionHookManager {
         console.warn(`Failed to check session ${sessionId}:`, error)
       }
     }
-
     // 按优先级排序
     return matchingSessions.sort((a, b) => 
       (a.matchPattern.priority || 999) - (b.matchPattern.priority || 999)
@@ -142,12 +131,9 @@ export class SessionHookManager {
    * 移除会话
    */
   async removeSession(sessionId: string): Promise<void> {
-    const sessions = await getRedisJson(`sessions`) || {}
-    if (sessions[sessionId]) {
-      delete sessions[sessionId]
-      await setRedisJson(`sessions`, sessions)
-    }
-    // 从Redis删除会话数据
+    // 从活跃会话Set中移除
+    await removeFromRedisSet(`sessions:active`, sessionId)
+    // 删除会话数据
     await deleteRedisKey(`session:${sessionId}`)
   }
 
@@ -156,6 +142,16 @@ export class SessionHookManager {
    * 获取所有活跃会话
    */
   async getAllSessions(): Promise<Record<string, any>> {
-    return await getRedisJson(`sessions`) || {}
+    const activeSessionIds = await getRedisSetMembers(`sessions:active`)
+    const sessions: Record<string, any> = {}
+    
+    for (const sessionId of activeSessionIds) {
+      const sessionData = await getRedisJson(`session:${sessionId}`)
+      if (sessionData) {
+        sessions[sessionId] = sessionData
+      }
+    }
+    
+    return sessions
   }
 }

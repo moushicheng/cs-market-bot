@@ -59,3 +59,28 @@ export async function deleteRedisKey(key: string) {
   const redisClient = await getRedisClient();
   await redisClient.del(key);
 }
+
+// Redis Set 操作函数
+export async function addToRedisSet(key: string, member: string, seconds?: number) {
+  const redisClient = await getRedisClient();
+  await redisClient.sAdd(key, member);
+  if (seconds && seconds > 0) {
+    await redisClient.expire(key, seconds);
+  }
+}
+
+export async function removeFromRedisSet(key: string, member: string) {
+  const redisClient = await getRedisClient();
+  await redisClient.sRem(key, member);
+}
+
+export async function getRedisSetMembers(key: string): Promise<string[]> {
+  const redisClient = await getRedisClient();
+  return await redisClient.sMembers(key);
+}
+
+export async function isRedisSetMember(key: string, member: string): Promise<boolean> {
+  const redisClient = await getRedisClient();
+  const result = await redisClient.sIsMember(key, member);
+  return Boolean(result);
+}

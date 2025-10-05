@@ -284,6 +284,7 @@ export class CSQAQClient {
    * @returns 饰品详情数据
    */
   async getGoodDetail(id: number): Promise<ApiEnvelope<GoodDetailResponse>> {
+    console.log('getGoodDetail', id)
     const response = await this.axios.get<ApiEnvelope<GoodDetailResponse>>('/api/v1/info/good', {
       params: { id }
     });

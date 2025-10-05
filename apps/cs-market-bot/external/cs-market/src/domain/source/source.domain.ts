@@ -5,6 +5,7 @@ export class SourceDomain {
   private csqaqClient: CSQAQClient
   private constructor() {  
   }
+  
   public static getInstance(): SourceDomain {
     if (!SourceDomain.instance) {
       SourceDomain.instance = new SourceDomain()
@@ -14,8 +15,14 @@ export class SourceDomain {
     }
     return SourceDomain.instance
   }
+
   public async searchSkinByKeyword(keyword: string) {
     const skins = await this.csqaqClient.searchGoodId(keyword)
     return skins
+  }
+
+  public async getSkinDetail(skinId: number) {
+    const skinDetail = await this.csqaqClient.getGoodDetail(skinId)
+    return skinDetail
   }
 }
