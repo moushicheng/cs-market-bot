@@ -21,6 +21,18 @@ export class SearchApp {
       .action(async (session) => {
         const koishiSession = session.session
         const skins = await this.getSkinList(session.args[0])
+
+        if(skins.length===0) {
+          return <div><at id={koishiSession.event.user.id}/>没有找到饰品</div>
+        }
+        if(skins.length===1) {
+          const detail=await this.getSkinDetail(skins[0].id)
+          return <div>
+            <img src={detail.img}/>
+            {detail.result}
+          </div>
+        }
+
         const result = skins.map((skin,index) => `${index+1} 名称: ${skin.name}`).join('\n')
         await this.sessionManager.createSession({
           userId: koishiSession.event.user.id,
@@ -60,26 +72,34 @@ export class SearchApp {
   }>) {
     // 处理皮肤详情事件
     const skinId=await this.getCurrentSkinId(event.data)
+    const detail=await this.getSkinDetail(skinId)
+    event.data.session.send(<div>
+      <img src={detail.img}/>
+      {detail.result}
+    </div>)
+  }
+
+  private async getSkinDetail(skinId: number) {
     const sourceDomain = SourceDomain.getInstance()
-    const skinDetail=await sourceDomain.getSkinDetail(skinId)
+    const skinDetail = await sourceDomain.getSkinDetail(skinId)
     const goodInfo=skinDetail.data.goods_info
     const result=`
-名称: ${goodInfo.name}
-
-buff出售: ${goodInfo.buff_sell_price}￥ ${goodInfo.buff_sell_num}数
-buff求购: ${goodInfo.buff_buy_price}￥ ${goodInfo.buff_buy_num}数
-uu出售: ${goodInfo.yyyp_sell_price}￥ ${goodInfo.yyyp_sell_num}数
-uu求购: ${goodInfo.yyyp_buy_price}￥ ${goodInfo.yyyp_buy_num}数
-
-涨跌价: [7]${goodInfo.sell_price_7}￥ [15]${goodInfo.sell_price_15}￥ [30]${goodInfo.sell_price_30}￥
-涨幅率: [7]${goodInfo.sell_price_rate_7}% [15]${goodInfo.sell_price_rate_15}% [30]${goodInfo.sell_price_rate_30}%
+    名称: ${goodInfo.name}
     
-存世量: ${goodInfo.statistic||'未知'} 件    
-    `
-    event.data.session.send(<div>
-      <img src={goodInfo.img}/>
-      {result}
-    </div>)
+    buff出售: ${goodInfo.buff_sell_price}￥ ${goodInfo.buff_sell_num}数
+    buff求购: ${goodInfo.buff_buy_price}￥ ${goodInfo.buff_buy_num}数
+    uu出售: ${goodInfo.yyyp_sell_price}￥ ${goodInfo.yyyp_sell_num}数
+    uu求购: ${goodInfo.yyyp_buy_price}￥ ${goodInfo.yyyp_buy_num}数
+    
+    涨跌价: [7]${goodInfo.sell_price_7}￥ [15]${goodInfo.sell_price_15}￥ [30]${goodInfo.sell_price_30}￥
+    涨幅率: [7]${goodInfo.sell_price_rate_7}% [15]${goodInfo.sell_price_rate_15}% [30]${goodInfo.sell_price_rate_30}%
+        
+    存世量: ${goodInfo.statistic||'未知'} 件    
+        `
+    return {
+      result,
+      img: goodInfo.img
+    }
   }
 
   private async getCurrentSkinId(data:{
