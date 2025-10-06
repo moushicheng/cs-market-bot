@@ -208,6 +208,12 @@ export interface BatchGoodSellPriceResponse {
   data: Record<string, GoodSellPriceData>;
 }
 
+// 联想查询饰品ID信息响应数据
+export interface SuggestItem {
+  id: string;
+  value: string;
+}
+
 export class CSQAQClient {
   private readonly axios: AxiosInstance;
   private readonly token?: string;
@@ -284,7 +290,6 @@ export class CSQAQClient {
    * @returns 饰品详情数据
    */
   async getGoodDetail(id: number): Promise<ApiEnvelope<GoodDetailResponse>> {
-    console.log('getGoodDetail', id)
     const response = await this.axios.get<ApiEnvelope<GoodDetailResponse>>('/api/v1/info/good', {
       params: { id }
     });
@@ -299,6 +304,25 @@ export class CSQAQClient {
   async getBatchGoodSellPrice(goodIds: number[]): Promise<ApiEnvelope<BatchGoodSellPriceResponse>> {
     const response = await this.axios.post<ApiEnvelope<BatchGoodSellPriceResponse>>('/api/v1/info/good_sell_price', {
       good_ids: goodIds
+    });
+    return response.data;
+  }
+
+  /**
+   * 联想查询饰品的ID信息
+   * @param text 搜索关键词，支持饰品名称、特殊关键词联想
+   * @returns 联想查询结果列表
+   * 
+   * 支持的特殊关键词联想：
+   * - 皮肤类：二西莫夫(高达)、黑色魅影(大姐姐)、炽热之炎(火沙鹰)、巨龙传说(龙狙)等
+   * - 武器类：SSG 08(鸟狙)、加利尔 AR(咖喱)、MAC-10(吹风机)、AWP(大狙)等
+   * - 职业哥类：Twistzz(总监)、frozen(寒王)、electronic(电子哥/倒霉蛋)、ZywOo(载物/大番薯)等
+   * - 战队类：Astralis(A队)、TYLOO(天禄)、Spirit(绿龙)、FURIA(黑豹)、Monte(三叉戟)等
+   * - 常规类：久经沙场(酒精)、StatTrak™(暗金)、原皮/原版/无涂装等
+   */
+  async suggestGoodId(text: string): Promise<ApiEnvelope<SuggestItem[]>> {
+    const response = await this.axios.get<ApiEnvelope<SuggestItem[]>>('/api/v1/search/suggest', {
+      params: { text }
     });
     return response.data;
   }

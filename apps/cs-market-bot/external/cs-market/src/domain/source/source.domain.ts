@@ -20,6 +20,10 @@ export class SourceDomain {
     const skins = await this.csqaqClient.searchGoodId(keyword)
     return skins
   }
+  public async suggestSkinByKeyword(keyword: string) {
+    const skins = await this.csqaqClient.suggestGoodId(keyword)
+    return skins.data
+  }
 
   public async getSkinDetail(skinId: number) {
     const skinDetail = await this.csqaqClient.getGoodDetail(skinId)

@@ -64,6 +64,7 @@ export class SessionHook {
 
   async remove() {
     await deleteRedisKey(`session:${this.id}`)
+    await removeFromRedisSet(`sessions:active`, this.id)
   }
 }   
 

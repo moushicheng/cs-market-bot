@@ -8,7 +8,7 @@ import {
   KoishiSession
 } from '../../infra/types/session'
 import type { ExtendedBaseSessionHook } from '../../infra/types/session'
-import { MatchPattern } from '../../infra/types/matcher'
+import { MatchPattern, MatchType, Operator, Logic } from '../../infra/types/matcher'
 
 // 示例：创建一个等待用户选择皮肤ID的会话
 export async function createSkinSelectionSession(koishiSession: KoishiSession) {
@@ -18,13 +18,13 @@ export async function createSkinSelectionSession(koishiSession: KoishiSession) {
   const matchPattern: MatchPattern = {
     conditions: [
       {
-        type: 'field',
+        type: MatchType.FIELD,
         field: 'session.message.content',
-        operator: 'regex',
+        operator: Operator.REGEX,
         value: '^\\d+$' // 匹配纯数字
       }
     ],
-    logic: 'AND',
+    logic: Logic.AND,
     priority: 1,
     enabled: true,
     name: 'skin_id_input',
@@ -38,15 +38,13 @@ export async function createSkinSelectionSession(koishiSession: KoishiSession) {
     sessionType: SessionType.WaitingChoiceSkinId,
     sessionData: {
       searchKeyword: 'AK-47',
-      availableSkins: ['123', '456', '789']
-    },
-    sessionContext: {
+      availableSkins: ['123', '456', '789'],
+      // 将上下文信息存储在sessionData中
       originalMessage: koishiSession.session.message.content,
       userInfo: koishiSession.session.user
     },
     eventType: 'message-created',
-    matchPattern: matchPattern,
-    timestamp: Date.now()
+    matchPattern: matchPattern
   }
   
   // 创建会话
@@ -64,19 +62,19 @@ export async function createSearchSession(koishiSession: KoishiSession) {
   const matchPattern: MatchPattern = {
     conditions: [
       {
-        type: 'field',
+        type: MatchType.FIELD,
         field: 'session.message.content',
-        operator: 'notEquals',
+        operator: Operator.NOT_EQUALS,
         value: ''
       },
       {
-        type: 'field',
+        type: MatchType.FIELD,
         field: 'session.message.content',
-        operator: 'notEquals',
+        operator: Operator.NOT_EQUALS,
         value: '/search'
       }
     ],
-    logic: 'AND',
+    logic: Logic.AND,
     priority: 2,
     enabled: true,
     name: 'search_keyword_input',
@@ -89,15 +87,13 @@ export async function createSearchSession(koishiSession: KoishiSession) {
     sessionType: SessionType.WaitingSearchKeyword,
     sessionData: {
       searchType: 'weapon',
-      filters: {}
-    },
-    sessionContext: {
+      filters: {},
+      // 将上下文信息存储在sessionData中
       originalCommand: koishiSession.command?.name,
       userPreferences: {}
     },
     eventType: 'message-created',
-    matchPattern: matchPattern,
-    timestamp: Date.now()
+    matchPattern: matchPattern
   }
   
   const session = await sessionManager.createSession(sessionParams)

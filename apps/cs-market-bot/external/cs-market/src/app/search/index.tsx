@@ -20,20 +20,19 @@ export class SearchApp {
       .alias('搜索')
       .action(async (session) => {
         const koishiSession = session.session
-        const skins = await this.getSkinList(session.args[0])
-
+        const skins = await this.getSkinList(session.args.join(' '))
         if(skins.length===0) {
           return <div><at id={koishiSession.event.user.id}/>没有找到饰品</div>
         }
         if(skins.length===1) {
-          const detail=await this.getSkinDetail(skins[0].id)
+          const detail=await this.getSkinDetail(Number(skins[0].id))
           return <div>
             <img src={detail.img}/>
             {detail.result}
           </div>
         }
 
-        const result = skins.map((skin,index) => `${index+1} 名称: ${skin.name}`).join('\n')
+        const result = skins.map((skin,index) => `${index+1} 名称: ${skin.value}`).join('\n')
         await this.sessionManager.createSession({
           userId: koishiSession.event.user.id,
           channelId: koishiSession.event.channel.id,
@@ -73,10 +72,13 @@ export class SearchApp {
     // 处理皮肤详情事件
     const skinId=await this.getCurrentSkinId(event.data)
     const detail=await this.getSkinDetail(skinId)
+
     event.data.session.send(<div>
       <img src={detail.img}/>
       {detail.result}
     </div>)
+
+    await event.data.sessionHook.remove()
   }
 
   private async getSkinDetail(skinId: number) {
@@ -114,7 +116,7 @@ export class SearchApp {
 
   private async getSkinList(keyword: string) {
     const sourceDomain = SourceDomain.getInstance()
-    const skins = await sourceDomain.searchSkinByKeyword(keyword)
+    const skins = await sourceDomain.suggestSkinByKeyword(keyword)
     return skins
   }
 }
