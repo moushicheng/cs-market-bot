@@ -21,25 +21,25 @@ export class SearchApp {
       .action(async (session) => {
         const koishiSession = session.session
         const skins = await this.getSkinList(session.args.join(' '))
-        if(skins.length===0) {
-          return <div><at id={koishiSession.event.user.id}/>没有找到饰品</div>
+        if (skins.length === 0) {
+          return <div><at id={koishiSession.event.user.id} />没有找到饰品</div>
         }
-        if(skins.length===1) {
-          const detail=await this.getSkinDetail(Number(skins[0].id))
+        if (skins.length === 1) {
+          const detail = await this.getSkinDetail(Number(skins[0].id))
           return <div>
-            <img src={detail.img}/>
+            <img src={detail.img} />
             {detail.result}
           </div>
         }
 
-        const result = skins.map((skin,index) => `${index+1} 名称: ${skin.value}`).join('\n')
+        const result = skins.map((skin, index) => `${index + 1} 名称: ${skin.value}`).join('\n')
         await this.sessionManager.createSession({
           userId: koishiSession.event.user.id,
           channelId: koishiSession.event.channel.id,
           sessionType: SessionType.WaitingSearchKeyword,
           eventType: EventType.SkinDetail,
           sessionData: {
-            skins: skins.map(item=>item.id)
+            skins: skins.map(item => item.id)
           },
           matchPattern: {
             conditions: [
@@ -52,7 +52,7 @@ export class SearchApp {
               {
                 type: MatchType.FIELD,
                 field: 'content',
-                value: '^\\d+',
+                value: '(\\d+)|(search)|(搜索)',
                 operator: Operator.REGEX
               }
             ],
@@ -60,21 +60,29 @@ export class SearchApp {
             priority: 1,
           }
         })
-        return result+'\n-----------------⚠⚠⚠⚠⚠⚠------------------\n回复序号查看饰品详情。'
+        return result + '\n-----------------⚠⚠⚠⚠⚠⚠------------------\n回复序号查看饰品详情。'
       })
   }
-  
+
   @EventHandler({ eventType: EventType.SkinDetail })
   async handleSkinDetail(event: BaseEvent<{
-    session:Session
-    sessionHook:SessionHook
+    session: Session
+    sessionHook: SessionHook
   }>) {
+    const isSecondSearch = await this.checkIsSecondSearch(event.data)
+    if (isSecondSearch) {
+      event.data.session.send('由于再次搜索，将取消上一次搜索等待')
+      await event.data.sessionHook.remove()
+      return;
+    }
+
     // 处理皮肤详情事件
-    const skinId=await this.getCurrentSkinId(event.data)
-    const detail=await this.getSkinDetail(skinId)
+    const skinId = await this.getCurrentSkinId(event.data)
+
+    const detail = await this.getSkinDetail(skinId)
 
     event.data.session.send(<div>
-      <img src={detail.img}/>
+      <img src={detail.img} />
       {detail.result}
     </div>)
 
@@ -84,19 +92,23 @@ export class SearchApp {
   private async getSkinDetail(skinId: number) {
     const sourceDomain = SourceDomain.getInstance()
     const skinDetail = await sourceDomain.getSkinDetail(skinId)
-    const goodInfo=skinDetail.data.goods_info
-    const result=`
+    const goodInfo = skinDetail.data.goods_info
+    const result = `
     名称: ${goodInfo.name}
     
-    buff出售: ${goodInfo.buff_sell_price}￥ ${goodInfo.buff_sell_num}数
-    buff求购: ${goodInfo.buff_buy_price}￥ ${goodInfo.buff_buy_num}数
-    uu出售: ${goodInfo.yyyp_sell_price}￥ ${goodInfo.yyyp_sell_num}数
-    uu求购: ${goodInfo.yyyp_buy_price}￥ ${goodInfo.yyyp_buy_num}数
+    buff出售: ${goodInfo.buff_sell_price}￥ ${goodInfo.buff_sell_num}个
+    buff求购: ${goodInfo.buff_buy_price}￥ ${goodInfo.buff_buy_num}个
+    uu出售: ${goodInfo.yyyp_sell_price}￥ ${goodInfo.yyyp_sell_num}个
+    uu求购: ${goodInfo.yyyp_buy_price}￥ ${goodInfo.yyyp_buy_num}个
     
-    涨跌价: [7]${goodInfo.sell_price_7}￥ [15]${goodInfo.sell_price_15}￥ [30]${goodInfo.sell_price_30}￥
-    涨幅率: [7]${goodInfo.sell_price_rate_7}% [15]${goodInfo.sell_price_rate_15}% [30]${goodInfo.sell_price_rate_30}%
+    涨跌价/涨幅率: 
+      [1日] ${goodInfo.sell_price_1}￥ / ${goodInfo.sell_price_rate_1}% 
+      [7日] ${goodInfo.sell_price_7}￥ / ${goodInfo.sell_price_rate_7}% 
+      [15日] ${goodInfo.sell_price_15}￥ / ${goodInfo.sell_price_rate_15}% 
+      [30日] ${goodInfo.sell_price_30}￥ / ${goodInfo.sell_price_rate_30}%
+      [90日] ${goodInfo.sell_price_90}￥ / ${goodInfo.sell_price_rate_90}%
         
-    存世量: ${goodInfo.statistic||'未知'} 件    
+    存世量: ${goodInfo.statistic || '未知'} 件    
         `
     return {
       result,
@@ -104,14 +116,27 @@ export class SearchApp {
     }
   }
 
-  private async getCurrentSkinId(data:{
-    session:Session
-    sessionHook:SessionHook
+
+  private async checkIsSecondSearch(data: {
+    session: Session
+    sessionHook: SessionHook
+  }) {
+    const { session } = data
+    const isSecondSearch = ['search', '搜索'].findIndex(item => session.content.includes(item))
+    if (isSecondSearch !== -1) {
+      return true
+    }
+    return false
+  }
+
+  private async getCurrentSkinId(data: {
+    session: Session
+    sessionHook: SessionHook
   }) {
     const { session, sessionHook } = data
-    const skinIndex=session.content.match(/\d+/)?.[0]
-    const skinList=sessionHook.sessionData.skins
-    return skinList[Number(skinIndex)-1]
+    const skinIndex = session.content.match(/\d+/)?.[0]
+    const skinList = sessionHook.sessionData.skins
+    return skinList[Number(skinIndex) - 1]
   }
 
   private async getSkinList(keyword: string) {

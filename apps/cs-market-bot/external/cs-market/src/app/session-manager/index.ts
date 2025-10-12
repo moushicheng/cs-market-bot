@@ -11,7 +11,6 @@ export class SessionManagerApp {
 
   registerMessageHandler(ctx: Context) {
     ctx.on('message', async (session: Session) => {
-      console.log(session.bot.internal,session.onebot)
       const matchingSessions = await this.sessionManager.findMatchingSessions(session)
       //触发事件
       const eventBus=EventBus.getInstance()
