@@ -6,6 +6,7 @@ import { SourceDomain } from '../../domain/source/source.domain'
 import { EventType } from '../../infra/types/event'
 import { BaseEvent } from '../../infra/event'
 import { EventHandler, AutoRegister } from '../../infra/event/decorators'
+import { getRedis, getRedisJson } from '../../infra/redis/redis'
 
 @AutoRegister()
 export class SearchApp {
@@ -71,13 +72,18 @@ export class SearchApp {
   }>) {
     const isSecondSearch = await this.checkIsSecondSearch(event.data)
     if (isSecondSearch) {
-      event.data.session.send('由于再次搜索，将取消上一次搜索等待')
       await event.data.sessionHook.remove()
       return;
     }
 
     // 处理皮肤详情事件
     const skinId = await this.getCurrentSkinId(event.data)
+    if (!skinId) {
+      // 如果无法获取皮肤ID，可能是无效输入
+      event.data.session.send('未找到该饰品')
+      await event.data.sessionHook.remove()
+      return;
+    }
 
     const detail = await this.getSkinDetail(skinId)
 
@@ -122,11 +128,10 @@ export class SearchApp {
     sessionHook: SessionHook
   }) {
     const { session } = data
-    const isSecondSearch = ['search', '搜索'].findIndex(item => session.content.includes(item))
-    if (isSecondSearch !== -1) {
-      return true
-    }
-    return false
+    const userSessionId = await getRedis(`session:user:${session.event.user.id}`)
+    const isSearch = ['search', '搜索'].findIndex(item => session.content.includes(item)) !== -1
+    // 如果用户有活跃会话，并且输入了搜索命令，则认为是第二次搜索
+    return userSessionId && isSearch
   }
 
   private async getCurrentSkinId(data: {
@@ -135,8 +140,20 @@ export class SearchApp {
   }) {
     const { session, sessionHook } = data
     const skinIndex = session.content.match(/\d+/)?.[0]
+    
+    if (!skinIndex) {
+      return null
+    }
+    
     const skinList = sessionHook.sessionData.skins
-    return skinList[Number(skinIndex) - 1]
+    const index = Number(skinIndex) - 1
+    
+    // 检查索引是否有效
+    if (index < 0 || index >= skinList.length) {
+      return null
+    }
+    
+    return skinList[index]
   }
 
   private async getSkinList(keyword: string) {

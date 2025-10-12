@@ -1,6 +1,6 @@
 import { createId } from "../../infra/id-generator/id-generator"
 import { MatchContext, MatchPattern } from "../../infra/types/matcher"
-import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey, addToRedisSet, removeFromRedisSet, getRedisSetMembers } from "../../infra/redis/redis"
+import { getRedisClient, getRedisJson, setRedisJson, deleteRedisKey, addToRedisSet, removeFromRedisSet, getRedisSetMembers, setRedis } from "../../infra/redis/redis"
 import { Matcher } from "../../infra/matcher/matcher"
 import { 
   SessionType, 
@@ -58,12 +58,14 @@ export class SessionHook {
     this.id = createId()
 
     await setRedisJson(`session:${this.id}`, params)
+    await setRedis(`session:user:${params.userId}`, this.id)
     
     return this;
   }
 
   async remove() {
     await deleteRedisKey(`session:${this.id}`)
+    await deleteRedisKey(`session:user:${this.sessionData.userId}`)
     await removeFromRedisSet(`sessions:active`, this.id)
   }
 }   

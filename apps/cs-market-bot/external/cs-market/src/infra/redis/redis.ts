@@ -46,6 +46,7 @@ export async function setRedisJson(key: string, value: any, seconds= 120) {
   }
 }
 
+
 export async function getRedisJson(key: string) {
   const redisClient = await getRedisClient();
   const value = await redisClient.get(key);
@@ -53,6 +54,23 @@ export async function getRedisJson(key: string) {
     return null;
   }
   return JSON.parse(value);
+}
+
+export async function setRedis(key: string, value: any, seconds= 120) {
+  const redisClient = await getRedisClient();
+  if(seconds > 0) {
+    await redisClient.setEx(key, seconds, value);
+  } else {
+    await redisClient.set(key, value);
+  }
+}
+export async function getRedis(key: string) {
+  const redisClient = await getRedisClient();
+  const value = await redisClient.get(key);
+  if(!value || typeof value !== 'string'){
+    return null;
+  }
+  return value;
 }
 
 export async function deleteRedisKey(key: string) {
