@@ -111,7 +111,7 @@ importers:
         specifier: ^4.18.7
         version: 4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)
       koishi-plugin-adapter-onebot:
-        specifier: 6.8.0
+        specifier: ^6.8.0
         version: 6.8.0(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1))
       koishi-plugin-advanced-echo:
         specifier: 1.0.0
@@ -140,6 +140,9 @@ importers:
       koishi-plugin-theme-vanilla:
         specifier: ^1.1.0
         version: 1.1.0(@koishijs/plugin-console@5.30.9(@koishijs/client@5.30.9(@types/node@22.18.7)(postcss@8.5.6)(rollup@4.52.3)(typescript@5.9.2))(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1)))(koishi@4.18.9(@cordisjs/plugin-http@0.6.3(cordis@3.18.1))(cordis@3.18.1))
+      node-cron:
+        specifier: 4.2.1
+        version: 4.2.1
     devDependencies:
       '@koishijs/client':
         specifier: ^5.30.4
@@ -2612,6 +2615,10 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
+
+  node-cron@4.2.1:
+    resolution: {integrity: sha512-lgimEHPE/QDgFlywTd8yTR61ptugX3Qer29efeyWw2rv259HtGBNn1vZVmp8lB9uo9wC0t/AT4iGqXxia+CJFg==}
+    engines: {node: '>=6.0.0'}
 
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
@@ -5663,6 +5670,8 @@ snapshots:
 
   node-addon-api@7.1.1:
     optional: true
+
+  node-cron@4.2.1: {}
 
   node-fetch-native@1.6.7: {}
 

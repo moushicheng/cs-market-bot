@@ -3,6 +3,7 @@ import { Context } from 'koishi'
 import { SearchApp } from './app/search'
 import { SessionManagerApp } from './app/session-manager'
 import { AuditApp } from './app/audit/audit.app'
+import { IpApp } from './app/ip/ip.app'
 import { ContextKey, ContextRegistry } from './infra/context/context'
 
 // 不知道为什么导入之后可以强行让bot.onebot不报错
@@ -20,6 +21,10 @@ export function apply(ctx: Context) {
 
   const searchApp = new SearchApp()
   searchApp.registerSearchCommand(ctx)
+
+  // 注册IP绑定应用
+  const ipApp = new IpApp()
+  ipApp.registerIpBinding(ctx)
 
 }
 export const name = 'example'

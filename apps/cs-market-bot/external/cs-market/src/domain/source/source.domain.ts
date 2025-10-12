@@ -29,4 +29,9 @@ export class SourceDomain {
     const skinDetail = await this.csqaqClient.getGoodDetail(skinId)
     return skinDetail
   }
+
+  public async bindLocalIp() {
+    await this.csqaqClient.bindLocalIp()
+    return true
+  }
 }
