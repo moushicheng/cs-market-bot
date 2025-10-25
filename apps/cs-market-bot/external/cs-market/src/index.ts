@@ -6,8 +6,10 @@ import { AuditApp } from './app/audit/audit.app'
 import { IpApp } from './app/ip/ip.app'
 import { ContextKey, ContextRegistry } from './infra/context/context'
 
-// 不知道为什么导入之后可以强行让bot.onebot不报错
-import type {  } from 'koishi-plugin-adapter-onebot'
+export const inject = {
+  required: ['database'],
+  optional: ['assets'],
+}
 
 export function apply(ctx: Context) {
   

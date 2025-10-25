@@ -19,7 +19,7 @@ export class IpApp {
    */
   registerIpBinding(ctx: Context) {
     // 每1分钟执行一次 (cron: * * * * *)
-    this.cronJob = cron.schedule('* * * * *', async () => {
+    this.cronJob = cron.schedule('*/5 * * * *', async () => {
       await this.bindIp()
     }, {
       timezone: 'Asia/Shanghai'
@@ -28,13 +28,12 @@ export class IpApp {
     // 启动定时任务
     this.cronJob.start()
 
-    ctx.logger('ip-app').info('IP绑定定时任务已启动，每1分钟执行一次')
-
+    ctx.logger('ip-app').info('IP绑定定时任务已启动，每5分钟执行一次')
     // 立即执行一次绑定
     this.bindIp().catch(error => {
       ctx.logger('ip-app').error('初始IP绑定失败:', error)
     })
-  }
+  } 
 
   /**
    * 执行IP绑定
