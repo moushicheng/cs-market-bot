@@ -7,11 +7,12 @@ import { EventType } from '../../infra/types/event'
 import { BaseEvent } from '../../infra/event'
 import { EventHandler, AutoRegister } from '../../infra/event/decorators'
 import { getRedis, getRedisJson } from '../../infra/redis/redis'
+import OneBotBot from 'koishi-plugin-adapter-onebot'
 
 @AutoRegister()
 export class SearchApp {
   private sessionManager: SessionHookManager
-
+  private bot: OneBotBot<any>
   constructor() {
     this.sessionManager = SessionHookManager.getInstance()
   }
@@ -20,8 +21,10 @@ export class SearchApp {
     ctx.command('search <keyword> 搜索cs市场饰品信息')
       .alias('搜索')
       .action(async (session) => {
+        this.bot = ctx.bots.find(item => item.platform === 'onebot') as OneBotBot<Context>
         const koishiSession = session.session
         const skins = await this.getSkinList(session.args.join(' '))
+        const isSelfChannel = koishiSession.event.channel.type===1
         if (skins.length === 0) {
           return <div><at id={koishiSession.event.user.id} />没有找到饰品</div>
         }
@@ -34,6 +37,28 @@ export class SearchApp {
         }
 
         const result = skins.map((skin, index) => `${index + 1} 名称: ${skin.value}`).join('\n')
+
+        if (!isSelfChannel) {
+          await this.bot.internal.sendGroupForwardMsgAsync(koishiSession.event.channel.id, [
+            {
+              "type": "node",
+              "data": {
+                "name": "消息",
+                "uin": "3387444505",
+                "content": result
+              }
+            },
+            {
+              "type": "node",
+              "data": {
+                "name": "消息",
+                "uin": "3387444505",
+                "content": '回复序号查看饰品详情。'
+              }
+            }
+          ])
+        }
+
         await this.sessionManager.createSession({
           userId: koishiSession.event.user.id,
           channelId: koishiSession.event.channel.id,
@@ -61,7 +86,10 @@ export class SearchApp {
             priority: 1,
           }
         })
-        return result + '\n-----------------⚠⚠⚠⚠⚠⚠------------------\n回复序号查看饰品详情。'
+        if (isSelfChannel) {
+          return result + '\n-----------------⚠⚠⚠⚠⚠⚠------------------\n回复序号查看饰品详情。'
+        }
+
       })
   }
 
@@ -140,19 +168,19 @@ export class SearchApp {
   }) {
     const { session, sessionHook } = data
     const skinIndex = session.content.match(/\d+/)?.[0]
-    
+
     if (!skinIndex) {
       return null
     }
-    
+
     const skinList = sessionHook.sessionData.skins
     const index = Number(skinIndex) - 1
-    
+
     // 检查索引是否有效
     if (index < 0 || index >= skinList.length) {
       return null
     }
-    
+
     return skinList[index]
   }
 

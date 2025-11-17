@@ -18,8 +18,8 @@ export function apply(ctx: Context) {
   const sessionManagerApp = new SessionManagerApp()
   sessionManagerApp.registerMessageHandler(ctx)
 
-  const auditApp = new AuditApp()
-  auditApp.registerAudit(ctx)
+  // const auditApp = new AuditApp()
+  // auditApp.registerAudit(ctx)
 
   const searchApp = new SearchApp()
   searchApp.registerSearchCommand(ctx)
